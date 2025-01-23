@@ -20,7 +20,6 @@ struct SearchAssembly: SearchAssemblyProtocol {
         )
 
         let collectionViewDataSource = SearchCollectionViewDataSource(
-            presenter: presenter,
             storageManager: storageManager
         )
 

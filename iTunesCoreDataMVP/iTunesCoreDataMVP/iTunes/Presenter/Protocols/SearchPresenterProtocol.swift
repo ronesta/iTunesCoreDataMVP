@@ -10,6 +10,4 @@ import UIKit
 
 protocol SearchPresenterProtocol: AnyObject {
     func searchAlbums(with term: String)
-
-    func loadImage(for album: AlbumModel) -> UIImage?
 }

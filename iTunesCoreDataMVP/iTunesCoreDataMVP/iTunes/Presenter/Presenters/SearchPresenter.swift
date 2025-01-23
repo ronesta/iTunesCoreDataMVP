@@ -78,13 +78,4 @@ final class SearchPresenter: SearchPresenterProtocol {
             }
         }
     }
-
-    func loadImage(for album: AlbumModel) -> UIImage? {
-        guard let imageData = storageManager.fetchImageData(forImageId: Int(album.artistId)),
-              let image = UIImage(data: imageData) else {
-            return nil
-        }
-
-        return image
-    }
 }

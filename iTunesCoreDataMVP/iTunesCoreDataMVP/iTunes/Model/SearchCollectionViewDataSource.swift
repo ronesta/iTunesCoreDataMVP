@@ -10,12 +10,9 @@ import UIKit
 
 final class SearchCollectionViewDataSource: NSObject, SearchDataSourceProtocol {
     var albums = [AlbumModel]()
-    var presenter: SearchPresenterProtocol
     var storageManager: StorageManagerProtocol
 
-    init(presenter: SearchPresenterProtocol,
-         storageManager: StorageManagerProtocol) {
-        self.presenter = presenter
+    init(storageManager: StorageManagerProtocol) {
         self.storageManager = storageManager
     }
 
@@ -34,7 +31,11 @@ final class SearchCollectionViewDataSource: NSObject, SearchDataSourceProtocol {
         }
 
         let album = albums[indexPath.item]
-        let image = presenter.loadImage(for: album)
+
+        guard let imageData = storageManager.fetchImageData(forImageId: Int(album.artistId)),
+              let image = UIImage(data: imageData) else {
+            return cell
+        }
 
         cell.configure(with: album, image: image)
         return cell
