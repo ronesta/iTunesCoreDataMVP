@@ -8,11 +8,7 @@
 import CoreData
 import UIKit
 
-final class CoreDataManager {
-    static let shared = CoreDataManager()
-
-    private init() {}
-
+final class CoreDataManager: StorageManagerProtocol {
     private let persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "iTunesModel")
         container.loadPersistentStores { _, error in
@@ -84,6 +80,19 @@ final class CoreDataManager {
         }
     }
 
+    func fetchAlbums(for searchTerm: String) -> [AlbumModel] {
+        let fetchRequest = NSFetchRequest<AlbumModel>(entityName: "AlbumModel")
+        fetchRequest.predicate = NSPredicate(format: "term == %@", searchTerm)
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "collectionName", ascending: true)]
+
+        do {
+            return try context.fetch(fetchRequest)
+        } catch {
+            print("Failed to fetch albums: \(error)")
+        }
+        return []
+    }
+
     func saveSearchTerm(_ term: String) {
         let fetchRequest = NSFetchRequest<SearchTermModel>(entityName: "SearchTermModel")
         fetchRequest.predicate = NSPredicate(format: "term == %@", term)
@@ -99,17 +108,16 @@ final class CoreDataManager {
         }
     }
 
-    func fetchAlbums(for searchTerm: String) -> [AlbumModel] {
-        let fetchRequest = NSFetchRequest<AlbumModel>(entityName: "AlbumModel")
-        fetchRequest.predicate = NSPredicate(format: "term == %@", searchTerm)
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "collectionName", ascending: true)]
+    func getSearchHistory() -> [String] {
+        let fetchRequest = NSFetchRequest<SearchTermModel>(entityName: "SearchTermModel")
 
         do {
-            return try context.fetch(fetchRequest)
+            let results = try context.fetch(fetchRequest)
+            return results.map { $0.term ?? "" }
         } catch {
-            print("Failed to fetch albums: \(error)")
+            print("Failed to fetch search history: \(error)")
+            return []
         }
-        return []
     }
 
     func fetchImageData(forImageId id: Int) -> Data? {
@@ -125,18 +133,6 @@ final class CoreDataManager {
         }
 
         return nil
-    }
-
-    func getSearchHistory() -> [String] {
-        let fetchRequest = NSFetchRequest<SearchTermModel>(entityName: "SearchTermModel")
-
-        do {
-            let results = try context.fetch(fetchRequest)
-            return results.map { $0.term ?? "" }
-        } catch {
-            print("Failed to fetch search history: \(error)")
-            return []
-        }
     }
 }
 
